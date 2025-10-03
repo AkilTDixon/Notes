@@ -1,6 +1,6 @@
 # Notes
 
-Robust notes app with collections, built with a React + Vite frontend (TipTap rich-text editor) and a Flask + MongoDB backend.
+Robust notes app with collections, Fullstack project built with a React + Vite frontend (TipTap rich-text editor) and a Flask + MongoDB backend.
 
 https://github.com/user-attachments/assets/55a6c20d-0461-48da-a897-bfa4072486b7
 
