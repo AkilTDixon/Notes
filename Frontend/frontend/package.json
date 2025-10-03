@@ -29,7 +29,8 @@
     "lodash.throttle": "^4.1.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "react-hotkeys-hook": "^5.1.0"
+    "react-hotkeys-hook": "^5.1.0",
+    "axios": "^1.x"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",

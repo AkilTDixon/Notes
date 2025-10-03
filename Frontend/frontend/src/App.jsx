@@ -118,10 +118,10 @@ function App() {
             .then(res => {
                 setLoadCollection(true);
                 setCurrentCollection(collection);
-                if (res.data.length == 0) {
+                if (res.data.length === 0) {
 
                     setTitle(" ");
-                    setItems({ title: " ", body: " " });
+                    setItems([{ title: " ", body: " " }]);
                     setEditorContent((prev) => ({ ...prev, html: " " }));
                 }
                 else {
@@ -139,8 +139,8 @@ function App() {
     const getAllItems = () => {
         axios.get("http://localhost:5000/all-items")
             .then(res => {
-                if (res.data.length == 0)
-                    setItems({title: " ", body: " "});
+                if (res.data.length === 0)
+                    setItems([{title: " ", body: " "}]);
                 else
                     setItems(res.data);
                 })

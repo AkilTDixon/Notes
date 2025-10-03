@@ -58,7 +58,9 @@ I:/Projects/Notes
 - Python 3.10+
 - MongoDB connection string (Atlas or local)
 
-Set an environment variable for the backend to connect to MongoDB:
+Set an environment variable for the backend to connect to MongoDB (name: `mongodbKey`). The database name used by the app is `Notes`.
+
+Create a database named `Notes` in MongoDB cluster before starting the app.
 
 
 ### Backend (Flask API)
@@ -76,7 +78,7 @@ Set an environment variable for the backend to connect to MongoDB:
 
 2) Install dependencies
    ```bash
-   pip install flask flask-cors pymongo
+   pip install -r requirements.txt
    ```
 
 3) Run the API
@@ -85,6 +87,9 @@ Set an environment variable for the backend to connect to MongoDB:
    ```
 
 The API serves at `http://localhost:5000` by default.
+
+First run tips:
+- If there are no collections yet, use the frontend's “Create New” action (or call `POST /add-collection`) to create the initial collection after the `Notes` database exists.
 
 ### Frontend (React + Vite)
 
@@ -99,7 +104,7 @@ The API serves at `http://localhost:5000` by default.
    npm run dev
    ```
 
-The app runs on the Vite dev server (e.g., `http://localhost:5173`). The frontend expects the backend at `http://localhost:5000` (see API calls in `src/App.jsx`).
+The app runs on the Vite dev server (e.g., `http://localhost:63401`). The frontend expects the backend at `http://localhost:5000` (see API calls in `src/App.jsx`).
 
 ---
 
@@ -108,6 +113,13 @@ The app runs on the Vite dev server (e.g., `http://localhost:5173`). The fronten
 - `mongodbKey` (env var): MongoDB connection string used by the Flask app (`ToDoList.py`).
 - Default database: `Notes`
 - Collections are created/renamed/deleted via API routes (see below). The active collection is managed server-side and selected by the frontend.
+
+### Local development notes
+
+- Backend CORS allows any localhost port during dev via regex: `http://localhost:\d+`.
+  - If you prefer a fixed port, change the allowed origin in `ToDoList.py`.
+- Frontend calls the backend at `http://localhost:5000` (default Flask port).
+- Set `mongodbKey` in your OS environment before starting the backend.
 
 ---
 
@@ -142,6 +154,7 @@ Key dependencies:
 
 - `@tiptap/react`, `@tiptap/starter-kit`, extensions for highlight, lists, images, HR, subs/superscript, text-align
 - `@radix-ui/react-*`, `@floating-ui/react`
+- `axios`
 
 ---
 
