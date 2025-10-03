@@ -4,7 +4,7 @@ Robust notes app with collections, built with a React + Vite frontend (TipTap ri
 
 https://github.com/user-attachments/assets/55a6c20d-0461-48da-a897-bfa4072486b7
 
-> Status: Work in progress. Core CRUD flows for collections and notes are implemented.
+> Status: Core CRUD flows for collections and notes are implemented.
 
 ---
 
