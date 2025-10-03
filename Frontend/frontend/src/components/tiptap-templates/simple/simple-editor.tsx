@@ -303,7 +303,8 @@ export function SimpleEditor({ value, onChange }) {
           
         </Toolbar>
 
-        <EditorContent
+        <EditorContent 
+          spellcheck="false"
           editor={editor}
           role="presentation"
           className="simple-editor-content"

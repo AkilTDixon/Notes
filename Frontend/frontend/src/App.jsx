@@ -2,24 +2,20 @@ import { useState, useEffect, useRef } from 'react'
 import axios from 'axios'
 import { useMark } from '@/components/tiptap-ui/mark-button'
 import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-
 import './App.css'
 
 
 function App() {
     const [title, setTitle] = useState("");
-    const [collectionName, setCollectionName] = useState("");
     const [allCollectionNames, setCollections] = useState([]);
     const [currentCollection, setCurrentCollection] = useState("");
     const [allItems, setItems] = useState([{ title: " ", body: " "}]);
     const [itemID, setItemID] = useState("");
     const [editorContent, setEditorContent] = useState({ json: {}, html: "", text: "" });
     const [loadCol, setLoadCollection] = useState(false);
-    const [listenerRef, setListenerRef] = useState(null);
     const [editingTitle, setEditingTitle] = useState(false);
     const [refreshCollections, toggleRefresh] = useState(false);
+    const [showRenameInput, setShowRenameInput] = useState(false);
 
     //Hidden dropdowns
     const [showList, setShowList] = useState(false);
@@ -36,13 +32,12 @@ function App() {
     const [mouseX, setMouseX] = useState(0);
     const [mouseY, setMouseY] = useState(0);
 
-    const handleDeleteItem = () => {
-        axios.delete(`http://localhost:5000/delete-item/${itemID}`)
-            .then(res => {
-                getAllItems();
-            })
-            .catch(err => console.log(err));
+    const handleShowRename = () => {
+        setShowRenameInput(true);
     };
+
+
+    
 
     const handleCollectionOptions = (e) => {
         e.preventDefault();
@@ -59,12 +54,23 @@ function App() {
         
         
     };
-    
+    const handleRenameCollection = (e) => {
+        setCurrentCollection(e.target.value);
+    };
+    const handleCollectionKeyDown = (e) => {
+        if (e.key === "Enter") {
+
+            setShowRenameInput(false);
+            handleCollectionRename();
+        }
+    };
+
     const handleTitleChange = (e) => {
         setTitle(e.target.value);
     };
-    const handleKeyDown = (e) => {
+    const handleTitleKeyDown = (e) => {
         if (e.key === "Enter") {
+
             setEditingTitle(false);
             handleTitleEdit();
         }
@@ -77,9 +83,26 @@ function App() {
             setEditingTitle(false);
         
     };
+
+    
+
     const handleCollectionClick = () => {
         setShowList(!showList);
         
+    };
+
+    const handleDeleteItem = () => {
+        axios.delete(`http://localhost:5000/delete-item/${itemID}`)
+            .then(res => {
+                getAllItems();
+            })
+            .catch(err => console.log(err));
+    };
+
+    const handleCollectionRename = () => {
+        axios.put(`http://localhost:5000/rename-collection/${currentCollection}`)
+            .then(res => toggleRefresh(!refreshCollections))
+            .catch(err => console.log(err))
     };
     const handleDeleteCollection = () => {
         axios.delete("http://localhost:5000/delete-collection")
@@ -112,6 +135,7 @@ function App() {
             })
             .catch(err => console.log(err));
     };
+    
     const getAllItems = () => {
         axios.get("http://localhost:5000/all-items")
             .then(res => {
@@ -237,6 +261,7 @@ function App() {
               </div>
           </div>
               <div>
+                  {showRenameInput && (<input className="rename-collection" style={{ top: mouseY, left: mouseX }} type="text" value={currentCollection} onChange={handleRenameCollection} onKeyDown={(e) => { handleCollectionKeyDown(e) }}></input>)}
                   {showCollectionOptions && (
                       <div ref={collectionOptionsRef}
                           className="dropdown-menu"
@@ -249,7 +274,7 @@ function App() {
                       >
                           <ul>
                               <li className="dropdown-item" onClick={() => handleCreateCollection()}>Create New</li>
-                              <li className="dropdown-item" onClick={() => handleRenameCollection()}>Rename</li>
+                              <li className="dropdown-item" onClick={() => handleShowRename()}>Rename</li>
                               <li className="dropdown-item" onClick={() => handleDeleteCollection()}>Delete</li>
                           </ul>
                       </div>
@@ -271,7 +296,7 @@ function App() {
                   ) }
               </div>
               {editingTitle ?
-                  (<input className="title-edit" type="text" value={title} onChange={handleTitleChange} onKeyDown={(e) => { handleKeyDown(e) }}>
+                  (<input className="title-edit" type="text" value={title} onChange={handleTitleChange} onKeyDown={(e) => { handleTitleKeyDown(e) }}>
                   </input>) :
                   (<h1 onClick={() => { setEditingTitle(true) }} className = "title">{ title }</h1>)
               }

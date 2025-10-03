@@ -22,6 +22,7 @@ body {
 html,
 body {
   overscroll-behavior-x: none;
+
 }
 
 html,
@@ -30,6 +31,7 @@ body,
 #app {
   height: 100%;
   background-color: var(--tt-bg-color);
+
 }
 
 ::-webkit-scrollbar {
@@ -52,6 +54,7 @@ body,
 
 .tiptap.ProseMirror {
     font-family: "IM Fell English", sans-serif;
+    
 }
 
 .simple-editor-wrapper {
@@ -62,7 +65,7 @@ body,
 }
 
 .simple-editor-content {
-    max-width: 648px;
+    max-width: 850px;
     width: 100%;
     margin: 0 auto;
     height: 100%;
@@ -74,8 +77,9 @@ body,
 }
 
 .simple-editor-content .tiptap.ProseMirror.simple-editor {
-  flex: 1;
-  padding: 3rem 3rem 30vh;
+    flex: 1;
+    padding: 3rem 3rem 30vh;
+    font-size: 25px;
 }
 
 @media screen and (max-width: 480px) {

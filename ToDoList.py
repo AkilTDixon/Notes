@@ -17,7 +17,8 @@ connect.openDatabase("Notes")
 #when visiting this URL, the function is called
 @app.route("/rename-collection/<newName>", methods=["PUT"])
 def renameCollection(newName):
-    connect.collection.rename(newName)
+    if connect.collection.name != newName:
+        connect.collection.rename(newName)
     return jsonify({"message":"returning"})
 
 @app.route("/delete-collection", methods=["DELETE"])
