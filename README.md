@@ -2,6 +2,7 @@
 
 To-Do:  
   -Renaming collections
+  
   -Handling trashed items and collections
 
 
