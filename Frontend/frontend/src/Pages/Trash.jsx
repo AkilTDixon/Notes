@@ -21,7 +21,7 @@ export function Trash() {
         axios.put(`http://localhost:5000/trash/restore-element/${id}/${tp}/${destination}`)
             .then(res => {
                 setToggle(!toggleRefresh);
-                console.log(res);
+                console.log(res.data.message);
             })
             .catch(err => console.log(err))
     }

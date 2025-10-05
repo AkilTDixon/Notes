@@ -117,6 +117,7 @@ def updateItemTitle(itemID):
 
 @app.route("/edit-itemBody/<itemID>", methods=["PUT"])
 def updateItemBody(itemID):
+    
     if connect.collection is None:
         return jsonify({"message": "no active collection"}), 400
     try:
@@ -182,6 +183,8 @@ def restoreElement(identifier, elementType, destination):
                 return jsonify({"message": "invalid id"}), 400
             connect.db[destination].insert_one(connect.trashCollection.find_one({"_id":conv}))
             connect.deleteTrashItem({"_id":conv})
+        else:
+            return jsonify({"message" : "Destination collection doesn't exist"})
     elif elementType == "collection":
         if not connect.restoreCollection(identifier):
             return jsonify({"message" : "No connection to database"})
@@ -197,4 +200,4 @@ def deleteAllItems():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(debug=False, port=5000)

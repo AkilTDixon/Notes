@@ -130,6 +130,7 @@ export function Main() {
 
                     setItems(res.data);
                     setTitle(res.data[0].title);
+                    setItemID(res.data[0]._id);
                     setEditorContent((prev) => ({ ...prev, html: res.data[0].body }));
                 }
 
@@ -208,7 +209,7 @@ export function Main() {
         getAllItems();
 
     }, []);
-
+    
     useEffect(() => {
         const handleLeaveContext = (e) => {
             if (e.button === 0) {

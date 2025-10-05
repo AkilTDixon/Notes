@@ -21,7 +21,6 @@ class Database:
         self.trashCollection = self.trash["trash items"]
 
 
-
     def openDatabase(self, name):
         if self.testConnection():
             if name in self.client.list_database_names():
