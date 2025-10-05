@@ -29,7 +29,7 @@ def renameCollection(newName):
         return jsonify({"message": "newName is required"}), 400
     if connect.collection.name != newName:
         if not connect.renameCheck():
-            return jsonify({"message" : "No connection to databse"})
+            return jsonify({"message" : "No connection to database"})
 
     return jsonify({"message":"returning"})
 
@@ -39,7 +39,7 @@ def deleteCollection():
         return jsonify({"message": "no active collection"}), 400
     
     if not connect.moveCollectionToTrash(connect.collection.name):
-        return jsonify({"message" : "No connection to databse"})
+        return jsonify({"message" : "No connection to database"})
     
     return jsonify({"message" : "returning"})
 
@@ -49,7 +49,7 @@ def createCollection():
         return jsonify({"message": "database not open"}), 400
     col = []
     if not connect.createCollection("New Category"):
-        return jsonify({"message" : "No connection to databse"})
+        return jsonify({"message" : "No connection to database"})
     else:
         col = connect.db.list_collection_names()
     return jsonify(col)
@@ -59,7 +59,7 @@ def insertBlankData():
     if connect.collection is None:
         return jsonify({"message": "no active collection"}), 400
     if not connect.insertData({"title": "New Item", "body" : " "}):
-        return jsonify({"message" : "No connection to databse"})
+        return jsonify({"message" : "No connection to database"})
     return jsonify({"message":"returning"})
 
 @app.route("/all-items", methods=["GET"])
@@ -112,7 +112,7 @@ def updateItemTitle(itemID):
     except:
         return jsonify({"message": "invalid id"}), 400
     if not connect.updateTitle(conv, title):
-        return jsonify({"message" : "No connection to databse"})
+        return jsonify({"message" : "No connection to database"})
     return jsonify({"message": "returning"})
 
 @app.route("/edit-itemBody/<itemID>", methods=["PUT"])
@@ -126,7 +126,7 @@ def updateItemBody(itemID):
     body = request.json.get("content","")
     
     if not connect.updateBody(conv, body):
-        return jsonify({"message" : "No connection to databse"})
+        return jsonify({"message" : "No connection to database"})
     return jsonify({"message": "returning"})
 
 @app.route("/delete-item/<itemID>", methods=["DELETE"])
@@ -138,7 +138,7 @@ def deleteItem(itemID):
     except:
         return jsonify({"message": "invalid id"}), 400
     if not connect.moveItemToTrash({"_id": conv}):
-        return jsonify({"message" : "No connection to databse"})
+        return jsonify({"message" : "No connection to database"})
     return jsonify({"message" : "all good"})
     
 
@@ -183,7 +183,8 @@ def restoreElement(identifier, elementType, destination):
             connect.db[destination].insert_one(connect.trashCollection.find_one({"_id":conv}))
             connect.deleteTrashItem({"_id":conv})
     elif elementType == "collection":
-        connect.restoreCollection(identifier)
+        if not connect.restoreCollection(identifier):
+            return jsonify({"message" : "No connection to database"})
 
 
     return jsonify({"message" : "restored"})
@@ -191,7 +192,7 @@ def restoreElement(identifier, elementType, destination):
 @app.route("/trash/delete-all-items", methods=["DELETE"])
 def deleteAllItems():
     if not connect.deleteAllTrashItems():
-        return jsonify({"message" : "No connection to databse"})
+        return jsonify({"message" : "No connection to database"})
     return jsonify({"message" : "deleted"})
 
 
