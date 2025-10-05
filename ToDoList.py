@@ -13,7 +13,10 @@ CORS(app, resources={r"/*": {"origins": "http://localhost:\d+"}})
 
 
 connect = myDatabase.Database(os.environ["mongodbKey"])
-connect.openDatabase("Notes")
+if "Notes" not in connect.client.list_database_names():
+    connect.db = connect.client["Notes"]
+else:
+    connect.openDatabase("Notes")
 
 
 #decorator, gives flask a way to map a URL path to a function in python
@@ -25,39 +28,55 @@ def renameCollection(newName):
     if not newName:
         return jsonify({"message": "newName is required"}), 400
     if connect.collection.name != newName:
-        connect.collection.rename(newName)
+        if not connect.renameCheck():
+            return jsonify({"message" : "No connection to databse"})
+
     return jsonify({"message":"returning"})
 
 @app.route("/delete-collection", methods=["DELETE"])
 def deleteCollection():
     if connect.collection is None:
         return jsonify({"message": "no active collection"}), 400
-    connect.moveCollectionToTrash(connect.collection.name)
+    
+    if not connect.moveCollectionToTrash(connect.collection.name):
+        return jsonify({"message" : "No connection to databse"})
+    
     return jsonify({"message" : "returning"})
 
 @app.route("/add-collection", methods=["POST"])
 def createCollection():
     if connect.db is None:
         return jsonify({"message": "database not open"}), 400
-    connect.createCollection("New Category")
-    col = connect.db.list_collection_names()
+    col = []
+    if not connect.createCollection("New Category"):
+        return jsonify({"message" : "No connection to databse"})
+    else:
+        col = connect.db.list_collection_names()
     return jsonify(col)
 
 @app.route("/add-item-blank", methods=["POST"])
 def insertBlankData():
     if connect.collection is None:
         return jsonify({"message": "no active collection"}), 400
-    connect.insertData({"title": "New Item", "body" : " "})
+    if not connect.insertData({"title": "New Item", "body" : " "}):
+        return jsonify({"message" : "No connection to databse"})
     return jsonify({"message":"returning"})
 
 @app.route("/all-items", methods=["GET"])
 def getAllItems():
     if connect.collection is None:
         return jsonify([])
-    return jsonify(connect.getAllItems())
+    if not connect.testConnection():
+        return jsonify([])
+
+    
+    return jsonify(connect.getAllItems(connect.collection))
 
 @app.route("/all-collections", methods=["GET"])
 def getAllCollectionNames():
+    if not connect.testConnection():
+        return jsonify([])
+
     if connect.db is None:
         connect.openDatabase("Notes")
   
@@ -68,18 +87,23 @@ def getAllCollectionNames():
 def getCollectionName():
     if connect.collection is None:
         return jsonify({"message": "no active collection"}), 400
+
+
     return jsonify({"collection_name": connect.collection.name})
 
 @app.route("/set-collection", methods=["POST"])
 def setCollection():
+    if not connect.testConnection():
+        return jsonify([])
     data = request.get_json()
     connect.openCollection(data.get('colName'))
     if connect.collection is None:
         return jsonify([])
-    return jsonify(connect.getAllItems())
+    return jsonify(connect.getAllItems(connect.collection))
 
 @app.route("/edit-itemTitle/<itemID>", methods=["PUT"])
 def updateItemTitle(itemID):
+
     title = request.json.get("content", "")
     if connect.collection is None:
         return jsonify({"message": "no active collection"}), 400
@@ -87,7 +111,8 @@ def updateItemTitle(itemID):
         conv = ObjectId(itemID)
     except:
         return jsonify({"message": "invalid id"}), 400
-    connect.updateTitle(conv, title)
+    if not connect.updateTitle(conv, title):
+        return jsonify({"message" : "No connection to databse"})
     return jsonify({"message": "returning"})
 
 @app.route("/edit-itemBody/<itemID>", methods=["PUT"])
@@ -100,7 +125,8 @@ def updateItemBody(itemID):
         return jsonify({"message": "invalid id"}), 400
     body = request.json.get("content","")
     
-    connect.updateBody(conv, body)
+    if not connect.updateBody(conv, body):
+        return jsonify({"message" : "No connection to databse"})
     return jsonify({"message": "returning"})
 
 @app.route("/delete-item/<itemID>", methods=["DELETE"])
@@ -111,9 +137,52 @@ def deleteItem(itemID):
         conv = ObjectId(itemID)
     except:
         return jsonify({"message": "invalid id"}), 400
-    connect.moveItemToTrash({"_id": conv})
+    if not connect.moveItemToTrash({"_id": conv}):
+        return jsonify({"message" : "No connection to databse"})
     return jsonify({"message" : "all good"})
     
+
+
+
+# TRASH
+@app.route("/trash/get-all-elements", methods=["GET"])
+def getAllElements():
+    data = []
+    for name in connect.trash.list_collection_names():
+        if name != "trash items":
+            data.append({"type": "collection", "title": name})
+    allItems = connect.getAllItems(connect.trashCollection)
+    for item in allItems:
+        data.append(item)
+
+    return jsonify(data)
+
+@app.route("/trash/delete-element/<identifier>/<elementType>", methods=["DELETE"])
+def deleteElement(identifier, elementType):
+    
+    
+    
+    
+    
+
+    if elementType == "collection":
+        connect.deleteTrashCollection(identifier)
+    elif elementType == "item":      
+        try:       
+            conv = ObjectId(identifier)
+        except:
+            return jsonify({"message": "invalid id"}), 400
+        connect.deleteTrashItem({"_id":conv})
+
+    return jsonify({"message" : "deleted"})
+
+
+
+@app.route("/trash/delete-all-items", methods=["DELETE"])
+def deleteAllItems():
+    if not connect.deleteAllTrashItems():
+        return jsonify({"message" : "No connection to databse"})
+    return jsonify({"message" : "deleted"})
 
 
 if __name__ == "__main__":

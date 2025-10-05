@@ -25,24 +25,37 @@ class Database:
     def openDatabase(self, name):
         if self.testConnection():
             if name in self.client.list_database_names():
-                self.db = self.client[name]
+                self.db = self.client[name]    
+            return True
+        else:
+            return False
                 
 
     def openCollection(self, colName):
         if self.testConnection():
             if colName in self.db.list_collection_names():
                 self.collection = self.db[colName]
+            return True
+        else:
+            return False
 
     def createDatabase(self, name):
         if self.testConnection():
             if name not in self.client.list_database_names():
                 self.db = self.client[name]
+            return True
+        else:
+            return False
 
     def createCollection(self, colName):
         if self.testConnection():
             if colName not in self.db.list_collection_names():
                 self.db.create_collection(colName);
                 self.collection = self.db[colName]
+            return True
+        else:
+            return False
+
 
     def createCollectionWithData(self, colName, title, body):
         if self.testConnection():
@@ -50,6 +63,9 @@ class Database:
                 self.collection = self.db[colName]
                 data = {"title": title, "body": body}
                 result = self.collection.insert_one(data)
+            return True
+        else:
+            return False
     
     def updateTitle(self, _id, newTitle):
         if self.testConnection():
@@ -58,6 +74,10 @@ class Database:
                         {"_id": _id},
                         {"$set": {"title": newTitle}}
                     )
+            return True
+        else:
+            return False
+
     def updateBody(self, _id, body):
         if self.testConnection():
             if self.collection is not None:
@@ -65,24 +85,32 @@ class Database:
                         {"_id": _id},
                         {"$set": {"body": body}}
                     )
+            return True
+        else:
+            return False
+
     def serialize(self, data):
         data["_id"] = str(data["_id"])
         return data
 
-    def getAllItems(self):
-        return [self.serialize(data) for data in self.collection.find()]
+    def getAllItems(self, collection):
+        return [self.serialize(data) for data in collection.find()]
 
     def insertData(self, data):
         if self.testConnection():
             if self.collection is not None:
-               
-                #data = {"title": title, "body": body}
                 result = self.collection.insert_one(data)
+            return True
+        else:
+            return False
 
     def editCollectionName(self, colName, newName):
         if self.testConnection():
             if colName in self.db.list_collection_names():
                 self.db[colName].rename(newName)
+            return True
+        else:
+            return False
                 
     
 
@@ -91,11 +119,17 @@ class Database:
             if name in self.client.list_database_names():
                 self.client.drop_database(name)
                 self.db = None
+            return True
+        else:
+            return False
 
     def deleteCollection(self, colName):
         if self.testConnection():
             if colName in self.db.list_collection_names():
                 self.db[colName].drop()
+            return True
+        else:
+            return False
 
     def moveCollectionToTrash(self, colName):
         if self.testConnection():
@@ -112,8 +146,16 @@ class Database:
                 for doc in self.db[colName].find({}):
                     self.trash[newCol].insert_one(doc)
                 self.db[colName].drop()
+            return True
+        else:
+            return False
 
-                    
+    def renameCheck(self, colName):
+        if self.testConnect():
+            self.collection.rename(colName)
+            return True
+        else:
+            return False
 
     def moveItemToTrash(self, _id):
         if self.testConnection():
@@ -123,6 +165,9 @@ class Database:
                 self.collection.delete_one(_id)
             else:
                 print("Collection is None")
+            return True
+        else:
+            return False
                 
 
     def getCollection(self):
@@ -130,6 +175,29 @@ class Database:
 
     def getDatabase(self):
         return self.db
+
+
+    # TRASH
+    def deleteAllTrashItems(self):
+        if self.testConnection():
+            for doc in self.trashCollection.find():
+                self.trashCollection.delete_one(doc)
+            return True
+        else:
+            return False
+    def deleteTrashCollection(self,colName):
+        if self.testConnection():
+            if colName in self.trash.list_collection_names():
+                self.trash.drop_collection(colName)
+            return True
+        else:
+            return False
+    def deleteTrashItem(self,_id):
+        if self.testConnection():
+            self.trashCollection.delete_one(_id)
+            return True
+        else:
+            return False
 
     def testConnection(self):
         try:
