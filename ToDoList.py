@@ -159,12 +159,6 @@ def getAllElements():
 
 @app.route("/trash/delete-element/<identifier>/<elementType>", methods=["DELETE"])
 def deleteElement(identifier, elementType):
-    
-    
-    
-    
-    
-
     if elementType == "collection":
         connect.deleteTrashCollection(identifier)
     elif elementType == "item":      
@@ -176,7 +170,23 @@ def deleteElement(identifier, elementType):
 
     return jsonify({"message" : "deleted"})
 
+@app.route("/trash/restore-element/<identifier>/<elementType>/<destination>", methods=["PUT"])
+def restoreElement(identifier, elementType, destination):
+    
 
+    if elementType == "item":
+        if destination in connect.db.list_collection_names():
+            try:       
+                conv = ObjectId(identifier)
+            except:
+                return jsonify({"message": "invalid id"}), 400
+            connect.db[destination].insert_one(connect.trashCollection.find_one({"_id":conv}))
+            connect.deleteTrashItem({"_id":conv})
+    elif elementType == "collection":
+        connect.restoreCollection(identifier)
+
+
+    return jsonify({"message" : "restored"})
 
 @app.route("/trash/delete-all-items", methods=["DELETE"])
 def deleteAllItems():

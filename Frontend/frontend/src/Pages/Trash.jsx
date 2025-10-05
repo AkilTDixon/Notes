@@ -6,11 +6,26 @@ import axios from 'axios'
 export function Trash() {
     const [allElements, setTrashElements] = useState([]);
     const [toggleRefresh, setToggle] = useState(false);
-    const [elementType, setElementType] = useState("");
-    const [identifier, setIdentifier] = useState("");
 
 
-    const handleButtonClick = (collection, element) => {
+
+    const handleRestoreButtonClick = (collection, element) => {
+        if (collection) {
+            handleRestoreElement(element.title, "collection",null);
+        }
+        else {
+            handleRestoreElement(element._id, "item", element.collection);
+        }
+    };
+    const handleRestoreElement = (id, tp, destination) => {
+        axios.put(`http://localhost:5000/trash/restore-element/${id}/${tp}/${destination}`)
+            .then(res => {
+                setToggle(!toggleRefresh);
+                console.log(res);
+            })
+            .catch(err => console.log(err))
+    }
+    const handleDeleteButtonClick = (collection, element) => {
         if (collection) {
             handleDeleteElement(element.title, element.type);
         }
@@ -62,8 +77,9 @@ export function Trash() {
                         <ul style={{ borderRadius: '15%'}}>
                             {allElements.map(element => (
                                 <li className="dropdown-item" style={{ height: '100px', whiteSpace: 'nowrap', textOverflow: 'ellipsis', marginLeft: '0px', margin: '0px' }} key={element._id ? element._id : element.title}>{element.title}
-                                    <p style={{ left: '50px', position: 'relative', fontSize: '25px' }}>{element.type ? element.type : 'item' }</p>
-                                    <button style={{ fontSize: '25px', height: '65px', width: '150px', position: 'relative', left: '100px', top: '-10px' }} onClick={() => { element.type ? handleButtonClick(true, element) : handleButtonClick(false, element) } }>Delete</button>
+                                    <p style={{ left: '50px', position: 'relative', fontSize: '25px' }}>{element.type ? element.type : 'item'}</p>
+                                    <button style={{ fontSize: '25px', height: '65px', width: '150px', position: 'relative', left: '100px', top: '-10px' }} onClick={() => { element.type ? handleRestoreButtonClick(true, element) : handleRestoreButtonClick(false, element) }}>Restore</button>
+                                    <button style={{ fontSize: '25px', height: '65px', width: '150px', position: 'relative', left: '100px', top: '-10px' }} onClick={() => { element.type ? handleDeleteButtonClick(true, element) : handleDeleteButtonClick(false, element) } }>Delete</button>
                                 </li>
                                 
                             )) }

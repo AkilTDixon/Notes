@@ -161,6 +161,7 @@ class Database:
         if self.testConnection():
             if self.collection is not None:
                 move = self.collection.find_one(_id)
+                move["collection"] = self.collection.name
                 self.trashCollection.insert_one(move)
                 self.collection.delete_one(_id)
             else:
@@ -195,6 +196,23 @@ class Database:
     def deleteTrashItem(self,_id):
         if self.testConnection():
             self.trashCollection.delete_one(_id)
+            return True
+        else:
+            return False
+    def restoreCollection(self, colName):
+        if self.testConnection():
+            newCol = colName
+            if newCol not in self.db.list_collection_names():
+                self.db.create_collection(newCol)
+            else:
+                newCol = colName + str(self.iterator)
+                while newCol in self.db.list_collection_names():
+                    self.iterator += 1
+                    newCol = colName + str(self.iterator)
+                self.db.create_collection(newCol)
+            for doc in self.trash[colName].find({}):
+                self.db[newCol].insert_one(doc)
+            self.trash[colName].drop()
             return True
         else:
             return False
