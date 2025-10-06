@@ -15,7 +15,9 @@ https://github.com/user-attachments/assets/55a6c20d-0461-48da-a897-bfa4072486b7
 - Create, edit, and delete individual notes
 - Context menus for quick actions on collections and notes
 - Persistent storage in MongoDB
-- Restore or permanently delete items/collections sent to the trash database
+- Trash system with restore functionality for deleted items and collections
+- Two-page interface: Main notes page and dedicated Trash management page
+- Custom UI components with responsive design
 ---
 
 ## Tech Stack
@@ -35,17 +37,23 @@ I:/Projects/Notes
 ├─ Frontend/
 │  ├─ frontend/
 │  │  ├─ src/
-│  │  │  ├─ components/ (TipTap UI, nodes, templates)
-│  │  │  ├─ hooks/       (editor and UI hooks)
-│  │  │  ├─ styles/      (SCSS variables and animations)
-│  │  │  ├─ App.jsx      (UI + calls to Flask API)
-│  │  │  └─ main.jsx
+│  │  │  ├─ components/     (TipTap UI components - imported)
+│  │  │  ├─ hooks/          (TipTap editor hooks - imported)
+│  │  │  ├─ styles/         (TipTap SCSS styles - imported)
+│  │  │  ├─ Pages/          (Custom application pages)
+│  │  │  │  ├─ Main.jsx     (Main notes interface with collections)
+│  │  │  │  └─ Trash.jsx    (Trash management interface)
+│  │  │  ├─ App.jsx         (Router setup and main app component)
+│  │  │  ├─ App.css         (Custom styling for UI components)
+│  │  │  └─ main.jsx        (React entry point)
 │  │  ├─ index.html
-│  │  ├─ package.json    (Vite scripts)
-│  │  └─ README.md       (Vite template)
-├─ myDatabase.py         (MongoDB helper class)
-├─ ToDoList.py           (Flask API server)
-└─ README.md             (this file)
+│  │  ├─ package.json       (Vite scripts and dependencies)
+│  │  └─ README.md          (Vite template)
+├─ myDatabase.py            (Custom MongoDB helper class)
+├─ ToDoList.py              (Flask API server with CRUD operations)
+├─ requirements.txt         (Python dependencies)
+├─ run_project.bat          (Batch script to start both servers)
+└─ README.md                (this file)
 ```
 
 ---
@@ -104,7 +112,16 @@ First run tips:
    npm run dev
    ```
 
-The app runs on the Vite dev server (e.g., `http://localhost:63401`). The frontend expects the backend at `http://localhost:5000` (see API calls in `src/App.jsx`).
+The app runs on the Vite dev server (e.g., `http://localhost:63401`). The frontend expects the backend at `http://localhost:5000` (see API calls in `src/Pages/Main.jsx`).
+
+### Quick Start (Both Servers)
+
+Use the provided batch script to start both servers simultaneously:
+```bash
+run_project.bat
+```
+
+This will open two command windows - one for the Flask backend and one for the Vite frontend.
 
 ---
 
@@ -127,8 +144,9 @@ The app runs on the Vite dev server (e.g., `http://localhost:63401`). The fronte
 
 Base URL: `http://localhost:5000`
 
+### Main Operations
 - `PUT /rename-collection/<newName>`: Rename current collection to `<newName>`
-- `DELETE /delete-collection`: Move current collection to a Trash database and delete from active DB
+- `DELETE /delete-collection`: Move current collection to Trash database
 - `POST /add-collection`: Create a new collection named "New Category" and return all collection names
 - `POST /add-item-blank`: Insert a blank note into the current collection
 - `GET /all-items`: Get all notes in the current collection
@@ -138,6 +156,12 @@ Base URL: `http://localhost:5000`
 - `PUT /edit-itemTitle/<itemID>` (`{ content: string }`): Update a note title by id
 - `PUT /edit-itemBody/<itemID>` (`{ content: any }`): Update a note body by id (TipTap JSON accepted)
 - `DELETE /delete-item/<itemID>`: Move a note to Trash by id
+
+### Trash Operations
+- `GET /trash/get-all-elements`: Get all items and collections in trash
+- `PUT /trash/restore-element/<id>/<type>/<destination>`: Restore item or collection from trash
+- `DELETE /trash/delete-element/<id>/<type>`: Permanently delete item or collection from trash
+- `DELETE /trash/delete-all-items`: Permanently delete all items from trash
 
 ---
 
@@ -158,11 +182,25 @@ Key dependencies:
 
 ---
 
-## Notes on Data Model
+## Custom Implementation Details
 
-- Notes are stored as documents with fields like `title` and `body`.
-- The backend serializes MongoDB `_id` values to strings for the client.
-- The editor body accepts and saves TipTap JSON; HTML rendering is handled on the client.
+### Frontend Components
+- **Main.jsx**: Main application interface with collection management, note editing, and context menus
+- **Trash.jsx**: Dedicated trash management page with restore/delete functionality
+- **App.jsx**: Simple router setup connecting Main and Trash pages
+- **App.css**: Custom styling for UI components including dropdowns, buttons, and layout
+
+### Backend Architecture
+- **myDatabase.py**: Custom MongoDB helper class with methods for CRUD operations and trash management
+- **ToDoList.py**: Flask API server with comprehensive REST endpoints for notes and collections
+- **Trash System**: Separate MongoDB database for soft-deleted items with restore capabilities
+
+### Data Model
+- Notes are stored as documents with `title` and `body` fields
+- Collections are MongoDB collections within the `Notes` database
+- Trash items are stored in a separate `Trash` database with metadata
+- The backend serializes MongoDB `_id` values to strings for the client
+- The editor body accepts and saves TipTap JSON; HTML rendering is handled on the client
 
 ---
 
