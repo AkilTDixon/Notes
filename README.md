@@ -15,7 +15,7 @@ https://github.com/user-attachments/assets/55a6c20d-0461-48da-a897-bfa4072486b7
 - Create, edit, and delete individual notes
 - Context menus for quick actions on collections and notes
 - Persistent storage in MongoDB
-
+- Restore or permanently delete items/collections sent to the trash database
 ---
 
 ## Tech Stack
