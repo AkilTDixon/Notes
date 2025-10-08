@@ -28,7 +28,7 @@ def renameCollection(newName):
     if not newName:
         return jsonify({"message": "newName is required"}), 400
     if connect.collection.name != newName:
-        if not connect.renameCheck():
+        if not connect.renameCheck(newName):
             return jsonify({"message" : "No connection to database"})
 
     return jsonify({"message":"returning"})

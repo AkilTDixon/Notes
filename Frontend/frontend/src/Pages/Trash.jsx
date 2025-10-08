@@ -2,7 +2,7 @@ import '../App.css'
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
-
+import cog from '@/components/cog-16.png'
 export function Trash() {
     const [allElements, setTrashElements] = useState([]);
     const [toggleRefresh, setToggle] = useState(false);
@@ -71,7 +71,8 @@ export function Trash() {
     return (
         <>
             <div style={{}}>
-                <Link to="/">Home</Link>
+                <Link style={{ right: '100px', position: 'fixed', fontSize: '25px' }} to="/"><img src={cog}></img>Home</Link>
+                
                 <div style={{ display: 'flex', alignItems: 'left', justifyContent: 'left', position: 'relative' } }>
                     <h1 style={{ right: '100%', center: '10%', position: 'absolute' }}>
                         <ul style={{ borderRadius: '15%'}}>

@@ -150,7 +150,7 @@ class Database:
             return False
 
     def renameCheck(self, colName):
-        if self.testConnect():
+        if self.testConnection():
             self.collection.rename(colName)
             return True
         else:

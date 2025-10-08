@@ -70,7 +70,7 @@ import { useCursorVisibility } from "@/hooks/use-cursor-visibility"
 import { ThemeToggle } from "@/components/tiptap-templates/simple/theme-toggle"
 
 // --- Lib ---
-import { handleImageUpload, MAX_FILE_SIZE } from "@/lib/tiptap-utils"
+import { handleImageUpload, MAX_FILE_SIZE } from "@/components/uploading"
 
 // --- Styles ---
 import "@/components/tiptap-templates/simple/simple-editor.scss"
@@ -257,6 +257,7 @@ export function SimpleEditor({ value, onChange }) {
     editor,
     overlayHeight: toolbarRef.current?.getBoundingClientRect().height ?? 0,
   })
+
   React.useEffect(() => {
     if (editor && value){
       //setPreviousState(editor.state.selection.from);

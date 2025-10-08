@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import axios from 'axios'
 import { useMark } from '@/components/tiptap-ui/mark-button'
 import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor'
+import cog from '@/components/cog-16.png'
 import '../App.css'
 import { Link } from 'react-router-dom'
 
@@ -234,7 +235,8 @@ export function Main() {
         <>
 
             <div>
-                    <Link to="/trash">Trash</Link>
+                
+                <Link style={{right:'100px', position:'fixed', fontSize: '25px'}} to="/trash"><img src={cog}></img>Recycle Bin</Link>
                         <div>
                             <button onContextMenu={handleCollectionOptions} ref={colButtonRef} className="collection-button" onClick={handleCollectionClick}>
                                 {currentCollection}
