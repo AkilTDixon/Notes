@@ -3,6 +3,9 @@ import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
 import cog from '@/components/cog-16.png'
+
+
+
 export function Trash() {
     const [allElements, setTrashElements] = useState([]);
     const [toggleRefresh, setToggle] = useState(false);

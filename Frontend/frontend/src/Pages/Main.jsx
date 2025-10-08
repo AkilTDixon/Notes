@@ -161,7 +161,7 @@ export function Main() {
             .catch(err => console.log(err));
     };
     const handleBodyEdit = () => {
-        axios.put(`http://localhost:5000/edit-itemBody/${itemID}`, { content: editorContent.json })
+        axios.put(`http://localhost:5000/edit-itemBody/${itemID}`, { content: editorContent.json, flat: editorContent.text  })
             .then(res => { console.log("success"); getAllItems(); })
             .catch(err => console.log(err));
     };
@@ -236,7 +236,8 @@ export function Main() {
 
             <div>
                 
-                <Link style={{right:'100px', position:'fixed', fontSize: '25px'}} to="/trash"><img src={cog}></img>Recycle Bin</Link>
+                <Link style={{ right: '100px', position: 'fixed', fontSize: '25px' }} to="/trash"><img src={cog}></img>Recycle Bin</Link>
+                <Link style={{ right: '100px', top:'100px', position: 'fixed', fontSize: '25px' }} to="/search"><img src={cog}></img>Search</Link>
                         <div>
                             <button onContextMenu={handleCollectionOptions} ref={colButtonRef} className="collection-button" onClick={handleCollectionClick}>
                                 {currentCollection}

@@ -18,9 +18,10 @@ if "Notes" not in connect.client.list_database_names():
 else:
     connect.openDatabase("Notes")
 
+# connect.setSearchIndices()
 
-#decorator, gives flask a way to map a URL path to a function in python
-#when visiting this URL, the function is called
+# decorator, gives flask a way to map a URL path to a function in python
+# when visiting this URL, the function is called
 @app.route("/rename-collection/<newName>", methods=["PUT"])
 def renameCollection(newName):
     if connect.collection is None:
@@ -125,8 +126,10 @@ def updateItemBody(itemID):
     except:
         return jsonify({"message": "invalid id"}), 400
     body = request.json.get("content","")
+    flat = request.json.get("flat", "")
+
     
-    if not connect.updateBody(conv, body):
+    if not connect.updateBody(conv, body, flat):
         return jsonify({"message" : "No connection to database"})
     return jsonify({"message": "returning"})
 
@@ -143,6 +146,10 @@ def deleteItem(itemID):
     return jsonify({"message" : "all good"})
     
 
+# SEARCH
+@app.route("/search/query-all-collections/<text>", methods=["GET"])
+def getResults(text):
+    return jsonify(connect.getSearchResults(text))
 
 
 # TRASH

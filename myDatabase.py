@@ -1,8 +1,7 @@
 from pymongo import MongoClient
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
-
-
+import re
 
 
 class Database:
@@ -51,10 +50,23 @@ class Database:
             if colName not in self.db.list_collection_names():
                 self.db.create_collection(colName);
                 self.collection = self.db[colName]
+                self.collection.create_index([("flat", "text")])
             return True
         else:
             return False
 
+    def setSearchIndices(self):
+        if self.testConnection():
+            for collection in self.db.list_collection_names():
+                indices = self.db[collection].list_indexes()
+                count = 0
+                for i in indices:
+                    count+=1
+                if count == 1:
+                    self.db[collection].create_index([("flat", "text")])
+            return True
+        else:
+            return False
 
     def createCollectionWithData(self, colName, title, body):
         if self.testConnection():
@@ -77,12 +89,12 @@ class Database:
         else:
             return False
 
-    def updateBody(self, _id, body):
+    def updateBody(self, _id, body, flat):
         if self.testConnection():
             if self.collection is not None:
                 self.collection.update_one(
                         {"_id": _id},
-                        {"$set": {"body": body}}
+                        {"$set": {"body": body, "flat": flat}}
                     )
             return True
         else:
@@ -169,6 +181,18 @@ class Database:
         else:
             return False
                 
+    def getSearchResults(self, text):
+        if self.testConnection():
+            pattern = re.compile(text, re.IGNORECASE)
+            query = {"flat": {"$regex": pattern}}
+            #query = {"$text" : {"$search": text}}
+            results = []
+            for collection in self.db.list_collection_names():
+                for doc in self.db[collection].find(query):
+                    results.append(doc)
+            return [self.serialize(data) for data in results]
+        else:
+            return False
 
     def getCollection(self):
         return self.collection
@@ -192,23 +216,27 @@ class Database:
             return True
         else:
             return False
+
     def deleteTrashItem(self,_id):
         if self.testConnection():
             self.trashCollection.delete_one(_id)
             return True
         else:
             return False
+
     def restoreCollection(self, colName):
         if self.testConnection():
             newCol = colName
             if newCol not in self.db.list_collection_names():
                 self.db.create_collection(newCol)
+                self.db[newCol].create_index([("flat", "text")])
             else:
                 newCol = colName + str(self.iterator)
                 while newCol in self.db.list_collection_names():
                     self.iterator += 1
                     newCol = colName + str(self.iterator)
                 self.db.create_collection(newCol)
+                self.db[newCol].create_index([("flat", "text")])
             for doc in self.trash[colName].find({}):
                 self.db[newCol].insert_one(doc)
             self.trash[colName].drop()
