@@ -18,7 +18,8 @@ https://github.com/user-attachments/assets/55a6c20d-0461-48da-a897-bfa4072486b7
 - Context menus for quick actions on collections and notes
 - Persistent storage in MongoDB
 - Trash system with restore functionality for deleted items and collections
-- Two-page interface: Main notes page and dedicated Trash management page
+- **Search functionality** - Search across all collections with real-time results
+- Three-page interface: Main notes page, dedicated Search page, and Trash management page
 - Custom UI components with responsive design
 ---
 
@@ -44,6 +45,7 @@ I:/Projects/Notes
 │  │  │  ├─ styles/         (TipTap SCSS styles - imported)
 │  │  │  ├─ Pages/          (Custom application pages)
 │  │  │  │  ├─ Main.jsx     (Main notes interface with collections)
+│  │  │  │  ├─ Search.jsx   (Search interface with cross-collection search)
 │  │  │  │  └─ Trash.jsx    (Trash management interface)
 │  │  │  ├─ App.jsx         (Router setup and main app component)
 │  │  │  ├─ App.css         (Custom styling for UI components)
@@ -159,6 +161,9 @@ Base URL: `http://localhost:5000`
 - `PUT /edit-itemBody/<itemID>` (`{ content: any }`): Update a note body by id (TipTap JSON accepted)
 - `DELETE /delete-item/<itemID>`: Move a note to Trash by id
 
+### Search Operations
+- `GET /search/query-all-collections/<text>`: Search for text across all collections and return matching notes
+
 ### Trash Operations
 - `GET /trash/get-all-elements`: Get all items and collections in trash
 - `PUT /trash/restore-element/<id>/<type>/<destination>`: Restore item or collection from trash
@@ -188,18 +193,21 @@ Key dependencies:
 
 ### Frontend Components
 - **Main.jsx**: Main application interface with collection management, note editing, and context menus
+- **Search.jsx**: Dedicated search page with cross-collection search functionality and inline editing
 - **Trash.jsx**: Dedicated trash management page with restore/delete functionality
-- **App.jsx**: Simple router setup connecting Main and Trash pages
+- **App.jsx**: Router setup connecting Main, Search, and Trash pages
 - **App.css**: Custom styling for UI components including dropdowns, buttons, and layout
 
 ### Backend Architecture
-- **myDatabase.py**: Custom MongoDB helper class with methods for CRUD operations and trash management
-- **ToDoList.py**: Flask API server with comprehensive REST endpoints for notes and collections
+- **myDatabase.py**: Custom MongoDB helper class with methods for CRUD operations, search functionality, and trash management
+- **ToDoList.py**: Flask API server with comprehensive REST endpoints for notes, collections, and search
+- **Search System**: Cross-collection text search using MongoDB regex queries on flattened note content
 - **Trash System**: Separate MongoDB database for soft-deleted items with restore capabilities
 
 ### Data Model
-- Notes are stored as documents with `title` and `body` fields
+- Notes are stored as documents with `title`, `body`, and `flat` fields (flat field for search indexing)
 - Collections are MongoDB collections within the `Notes` database
+- Search functionality uses regex pattern matching on the `flat` field across all collections
 - Trash items are stored in a separate `Trash` database with metadata
 - The backend serializes MongoDB `_id` values to strings for the client
 - The editor body accepts and saves TipTap JSON; HTML rendering is handled on the client
@@ -215,5 +223,5 @@ Key dependencies:
 ## Roadmap
 
 - [ ] Autosave and optimistic UI updates
-- [ ] Search and filtering across collections
+- [Completed] Search and filtering across collections
 - [ ] Export/import notes (HTML/Markdown)
