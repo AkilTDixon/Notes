@@ -307,8 +307,6 @@ if __name__ == "__main__":
     import logging
 
     logging.getLogger('waitress.queue').setLevel(logging.ERROR)
-
-
-    serve(app, port=5000)
+    serve(app, host='127.0.0.1', port=5000)
     
     
