@@ -111,10 +111,13 @@ The frontend expects the backend at `http://localhost:5000`.
 
 If you prefer using Atlas or another MongoDB, set an environment variable before starting the backend and comment/uncomment the connection line in `ToDoList.py` accordingly.
 Comment out
+
 `port = connectLocally()`
+
 `connect = myDatabase.Database(f"mongodb://localhost:{port}/")`
 
 Uncomment
+
 `connect = myDatabase.Database(os.environ["mongodbKey"])`
 
 - Env var name: `mongodbKey` (your MongoDB connection string)
