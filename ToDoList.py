@@ -303,6 +303,12 @@ def deleteAllItems():
 
 
 if __name__ == "__main__":
-    app.run(debug=False, port=5000)
+    from waitress import serve
+    import logging
+
+    logging.getLogger('waitress.queue').setLevel(logging.ERROR)
+
+
+    serve(app, port=5000)
     
     
