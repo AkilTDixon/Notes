@@ -110,6 +110,7 @@ The frontend expects the backend at `http://localhost:5000`.
 ### Using Cloud MongoDB (optional)
 
 If you prefer using Atlas or another MongoDB, set an environment variable before starting the backend and comment/uncomment the connection line in `ToDoList.py` accordingly.
+
 Comment out
 ```py
 port = connectLocally()
