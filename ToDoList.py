@@ -1,26 +1,120 @@
 import myDatabase
 import os
+import socket
+import subprocess
+import threading
+import time
+import sys
+import atexit
+import signal
+import webbrowser
+import re
 from flask import Flask, request, jsonify
 from pymongo import MongoClient
 from flask_cors import CORS
 from bson import ObjectId
 
 
+frontendProcess = None
+
+
+
+def getFreePort():
+    s = socket.socket()
+    s.bind(('',0))
+    port = s.getsockname()[1]
+    s.close()
+    return port
+
+def connectLocally():
+    storeDir = os.path.join(os.getcwd(), "Data")
+    mongoD = os.path.join(os.getcwd(), "MongoDB", "Server","8.2","bin", "mongod.exe")
+
+    if not os.path.exists(storeDir):
+        os.makedirs(storeDir)
+
+    # need to find a free port
+    port = getFreePort()
+
+    process = subprocess.Popen([
+        mongoD,
+        "--dbpath", storeDir,
+        "--bind_ip", "127.0.0.1",
+        "--port", str(port),
+        ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    time.sleep(2)
+    return port
+
 
 app = Flask(__name__)
+
+
+def runFrontEnd():
+    global frontendProcess
+    enviro = os.environ.copy()
+    enviro["NO_COLOR"] = '1'
+    url = None
+
+    frontendProcess = subprocess.Popen(
+        ["npm", "run","dev", "--no-color"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        cwd="Frontend/frontend",
+        shell=True,
+        text=True,
+        encoding="utf-8",
+        env=enviro
+        )
+    for line in frontendProcess.stdout:
+        print(line, end="")  # optional: log Vite output
+        match = re.search(r"Local:\s*(http://localhost:(\d+))", line)
+        if match:
+            url = match.group(1)
+            break
+    webbrowser.open(url)
+
+def stopFrontEnd():
+    global frontendProcess
+    if frontendProcess:
+        if sys.platform.startswith("win"):
+            frontendProcess.terminate()
+        else:
+            os.kill(frontendProcess.pid, signal.SIGTERM)
+        frontendProcess.wait()
+
+atexit.register(stopFrontEnd)
+
 #gotta restrict CORS to local Vite dev server
-CORS(app, resources={r"/*": {"origins": "http://localhost:\d+"}})
+CORS(app, resources={r"/*": {"origins": r"http://localhost:\d+"}})
+threading.Thread(target=runFrontEnd, daemon=True).start()
 
 
-connect = myDatabase.Database(os.environ["mongodbKey"])
+
+#LOCAL
+port = connectLocally()
+connect = myDatabase.Database(f"mongodb://localhost:{port}/")
+
+
+# CLOUD
+#connect = myDatabase.Database(os.environ["mongodbKey"])
+
+
 if "Notes" not in connect.client.list_database_names():
     connect.db = connect.client["Notes"]
 else:
     connect.openDatabase("Notes")
 
+if len(connect.db.list_collection_names()) < 1:
+    connect.createCollection("New Category")
+
 # connect.setSearchIndices()
 
-# decorator, gives flask a way to map a URL path to a function in python
+
+
+
+
+
+
 # when visiting this URL, the function is called
 @app.route("/rename-collection/<newName>", methods=["PUT"])
 def renameCollection(newName):
@@ -104,6 +198,8 @@ def setCollection():
 
 @app.route("/edit-itemTitle/<itemID>", methods=["PUT"])
 def updateItemTitle(itemID):
+    if not itemID:
+        return jsonify({"message": "Invalid ID"})
 
     title = request.json.get("content", "")
     if connect.collection is None:
@@ -208,3 +304,5 @@ def deleteAllItems():
 
 if __name__ == "__main__":
     app.run(debug=False, port=5000)
+    
+    

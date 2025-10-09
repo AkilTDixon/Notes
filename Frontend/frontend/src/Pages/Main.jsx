@@ -161,9 +161,11 @@ export function Main() {
             .catch(err => console.log(err));
     };
     const handleBodyEdit = () => {
-        axios.put(`http://localhost:5000/edit-itemBody/${itemID}`, { content: editorContent.json, flat: editorContent.text, destination: currentCollection  })
-            .then(res => { console.log("success"); getAllItems(); })
-            .catch(err => console.log(err));
+        if (itemID) {
+            axios.put(`http://localhost:5000/edit-itemBody/${itemID}`, { content: editorContent.json, flat: editorContent.text, destination: currentCollection })
+                .then(res => { console.log("success"); getAllItems(); })
+                .catch(err => console.log(err));
+        }
     };
     const handleTitleEdit = () => {
         axios.put(`http://localhost:5000/edit-itemTitle/${itemID}`, { content: title })

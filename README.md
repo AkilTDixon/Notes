@@ -1,6 +1,6 @@
 # Notes
 
-Robust notes app with collections, Fullstack project built with a React + Vite frontend (TipTap rich-text editor) and a Flask + MongoDB backend.
+Robust notes app with collections. Fullstack project built with a React + Vite frontend (TipTap rich-text editor) and a Flask + MongoDB backend.
 
 Example video:
 
@@ -27,7 +27,7 @@ https://github.com/user-attachments/assets/55a6c20d-0461-48da-a897-bfa4072486b7
 
 - Frontend: React (Vite), TipTap v3, Radix UI, Floating UI, SCSS
 - Backend: Flask, Flask-CORS, PyMongo
-- Database: MongoDB (Atlas or local)
+- Database: MongoDB (embedded local for dev, or cloud via Atlas)
 
 TipTap Simple Editor reference: https://tiptap.dev/docs/ui-components/templates/simple-editor
 
@@ -54,9 +54,9 @@ I:/Projects/Notes
 │  │  ├─ package.json       (Vite scripts and dependencies)
 │  │  └─ README.md          (Vite template)
 ├─ myDatabase.py            (Custom MongoDB helper class)
-├─ ToDoList.py              (Flask API server with CRUD operations)
+├─ ToDoList.py              (Flask API server; also spawns Vite dev server)
 ├─ requirements.txt         (Python dependencies)
-├─ run_project.bat          (Batch script to start both servers)
+├─ run_project.bat          (Starts backend; backend auto-starts frontend)
 └─ README.md                (this file)
 ```
 
@@ -66,81 +66,65 @@ I:/Projects/Notes
 
 ### Prerequisites
 
-- Node.js 18+ (or compatible)
+- Node.js 18+
 - Python 3.10+
-- MongoDB connection string (Atlas or local)
+- Windows (dev convenience: includes local MongoDB binaries under `MongoDB/Server/8.2/bin`)
 
-Set an environment variable for the backend to connect to MongoDB (name: `mongodbKey`). The database name used by the app is `Notes`.
+You do not need an external MongoDB for local development. The backend launches a local `mongod.exe` on a free port and creates the `Notes` database automatically. Optionally, you can use a cloud MongoDB by setting `mongodbKey` (see below).
 
-Create a database named `Notes` in MongoDB cluster before starting the app.
+### Quick Start (Recommended)
 
-
-### Backend (Flask API)
-
-1) Create and activate a virtual environment (recommended)
+1) Create/activate a virtual environment and install backend deps
    ```powershell
    python -m venv .venv
    .\.venv\Scripts\Activate.ps1
-   ```
-   Or on bash:
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate
-   ```
-
-2) Install dependencies
-   ```bash
    pip install -r requirements.txt
    ```
 
-3) Run the API
-   ```bash
+2) Start the app
+   ```powershell
    python ToDoList.py
    ```
 
-The API serves at `http://localhost:5000` by default.
+What happens:
+- Flask API starts on `http://localhost:5000`
+- A local MongoDB instance is started in a `Data` folder on a free port
+- The Vite dev server is started automatically and your browser opens to the local URL
 
-First run tips:
-- If there are no collections yet, use the frontend's “Create New” action (or call `POST /add-collection`) to create the initial collection after the `Notes` database exists.
-
-### Frontend (React + Vite)
-
-1) Install dependencies
-   ```bash
-   cd Frontend/frontend
-   npm install
-   ```
-
-2) Start the dev server
-   ```bash
-   npm run dev
-   ```
-
-The app runs on the Vite dev server (e.g., `http://localhost:63401`). The frontend expects the backend at `http://localhost:5000` (see API calls in `src/Pages/Main.jsx`).
-
-### Quick Start (Both Servers)
-
-Use the provided batch script to start both servers simultaneously:
-```bash
+Alternatively on Windows, you can run:
+```bat
 run_project.bat
 ```
+This runs the same backend entrypoint, which in turn launches the frontend.
 
-This will open two command windows - one for the Flask backend and one for the Vite frontend.
+### Frontend (manual control)
+
+You can also run the frontend yourself:
+```bash
+cd Frontend/frontend
+npm install
+npm run dev
+```
+The frontend expects the backend at `http://localhost:5000`.
+
+### Using Cloud MongoDB (optional)
+
+If you prefer using Atlas or another MongoDB, set an environment variable before starting the backend and comment/uncomment the connection line in `ToDoList.py` accordingly.
+
+- Env var name: `mongodbKey` (your MongoDB connection string)
+- Default database name: `Notes`
+
+Current defaults in `ToDoList.py`:
+- Local mode (default): starts `mongod.exe` and connects to `mongodb://localhost:<randomPort>/`
+- Cloud mode (optional): `connect = myDatabase.Database(os.environ["mongodbKey"])`
 
 ---
 
 ## Environment & Configuration
 
-- `mongodbKey` (env var): MongoDB connection string used by the Flask app (`ToDoList.py`).
-- Default database: `Notes`
-- Collections are created/renamed/deleted via API routes (see below). The active collection is managed server-side and selected by the frontend.
-
-### Local development notes
-
-- Backend CORS allows any localhost port during dev via regex: `http://localhost:\d+`.
-  - If you prefer a fixed port, change the allowed origin in `ToDoList.py`.
-- Frontend calls the backend at `http://localhost:5000` (default Flask port).
-- Set `mongodbKey` in your OS environment before starting the backend.
+- CORS is restricted to localhost ports via regex: `http://localhost:\d+`
+- Frontend dev server URL is detected from Vite output and opened automatically
+- On first run, if no collections exist, a default collection named "New Category" is created
 
 ---
 
@@ -158,7 +142,7 @@ Base URL: `http://localhost:5000`
 - `GET /collection-name`: Get the name of the current collection
 - `POST /set-collection` (`{ colName: string }`): Set active collection and return its items
 - `PUT /edit-itemTitle/<itemID>` (`{ content: string }`): Update a note title by id
-- `PUT /edit-itemBody/<itemID>` (`{ content: any }`): Update a note body by id (TipTap JSON accepted)
+- `PUT /edit-itemBody/<itemID>` (`{ content: any, flat: string, destination: string }`): Update a note body by id
 - `DELETE /delete-item/<itemID>`: Move a note to Trash by id
 
 ### Search Operations
@@ -200,7 +184,7 @@ Key dependencies:
 
 ### Backend Architecture
 - **myDatabase.py**: Custom MongoDB helper class with methods for CRUD operations, search functionality, and trash management
-- **ToDoList.py**: Flask API server with comprehensive REST endpoints for notes, collections, and search
+- **ToDoList.py**: Flask API server with comprehensive REST endpoints for notes, collections, and search; also manages Vite dev server lifecycle
 - **Search System**: Cross-collection text search using MongoDB regex queries on flattened note content
 - **Trash System**: Separate MongoDB database for soft-deleted items with restore capabilities
 
