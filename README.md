@@ -18,7 +18,7 @@ https://github.com/user-attachments/assets/55a6c20d-0461-48da-a897-bfa4072486b7
 - Context menus for quick actions on collections and notes
 - Persistent storage in MongoDB
 - Trash system with restore functionality for deleted items and collections
-- **Search functionality** - Search across all collections with real-time results
+- Search across all collections with real-time results
 - Three-page interface: Main notes page, dedicated Search page, and Trash management page
 - Custom UI components with responsive design
 ---
