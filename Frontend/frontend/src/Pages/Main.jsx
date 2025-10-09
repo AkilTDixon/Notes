@@ -161,7 +161,7 @@ export function Main() {
             .catch(err => console.log(err));
     };
     const handleBodyEdit = () => {
-        axios.put(`http://localhost:5000/edit-itemBody/${itemID}`, { content: editorContent.json, flat: editorContent.text  })
+        axios.put(`http://localhost:5000/edit-itemBody/${itemID}`, { content: editorContent.json, flat: editorContent.text, destination: currentCollection  })
             .then(res => { console.log("success"); getAllItems(); })
             .catch(err => console.log(err));
     };
@@ -315,7 +315,6 @@ export function Main() {
                         <button onClick={() => { handleBodyEdit(); }} className="edit-button">
                             Save
                         </button>
-
                     </div>
                 </>
 

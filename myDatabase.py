@@ -89,10 +89,10 @@ class Database:
         else:
             return False
 
-    def updateBody(self, _id, body, flat):
+    def updateBody(self, _id, body, flat, collection):
         if self.testConnection():
-            if self.collection is not None:
-                self.collection.update_one(
+            if collection in self.db.list_collection_names():
+                self.db[collection].update_one(
                         {"_id": _id},
                         {"$set": {"body": body, "flat": flat}}
                     )
@@ -189,6 +189,7 @@ class Database:
             results = []
             for collection in self.db.list_collection_names():
                 for doc in self.db[collection].find(query):
+                    doc["collection"] = collection
                     results.append(doc)
             return [self.serialize(data) for data in results]
         else:

@@ -127,9 +127,9 @@ def updateItemBody(itemID):
         return jsonify({"message": "invalid id"}), 400
     body = request.json.get("content","")
     flat = request.json.get("flat", "")
-
+    collection = request.json.get("destination")
     
-    if not connect.updateBody(conv, body, flat):
+    if not connect.updateBody(conv, body, flat, collection):
         return jsonify({"message" : "No connection to database"})
     return jsonify({"message": "returning"})
 

@@ -69,6 +69,7 @@
     transition: 500ms;
     text-align: center;
     cursor: pointer;
+    white-space: nowrap;
 }
 
 .dropdown-item:hover {
