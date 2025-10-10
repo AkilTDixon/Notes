@@ -10,7 +10,7 @@ https://github.com/user-attachments/assets/5623bae3-e64f-470b-b5f5-3096cd1508fd
 
 
 
-> Status: Core CRUD flows for collections and notes are implemented.
+> Status: COMPLETE. Core CRUD flows for collections and notes are implemented.
 
 ---
 
