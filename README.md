@@ -4,7 +4,11 @@ Robust notes app with collections. Fullstack project built with a React + Vite f
 
 Example video:
 
-https://github.com/user-attachments/assets/55a6c20d-0461-48da-a897-bfa4072486b7
+
+
+https://github.com/user-attachments/assets/5623bae3-e64f-470b-b5f5-3096cd1508fd
+
+
 
 > Status: Core CRUD flows for collections and notes are implemented.
 
